@@ -1,23 +1,23 @@
-# Setup script for Redash with Docker on Ubuntu 18.04.
+*This is a fork of https://github.com/getredash/setup and requires additional manual steps to run.*
 
-This is a reference setup for Redash on a single Ubuntu 18.04 server, which uses Docker and Docker Compose for deployment and management.
+## Changes from parent repo
 
-This is the same setup we use for our official images (for AWS & Google Cloud) and can be used as reference if you want to manually setup Redash in a different environment (different OS or different deployment location).
+- Remove lines from `~/.profile` so that docker-compose can be used along side other docker containers.
+- Remove nginx service from `data/docker-compose.yml`
+- Change `setup.sh` to use `data/docker-compose.yml` instead of Github version.
+- Include a template nginx config file (`redash.nginx`) for use with the host machine's nginx installation.
 
-* `setup.sh` is the script that installs everything and creates the directories.
-* `docker-compose.yml` is the Docker Compose setup we use.
-* `packer.json` is Packer configuration we use to create the Cloud images.
+## Setup
 
-## FAQ
+1. Install nginx.
 
-### Can I use this in production?
+1. Run the following:
+    ```
+    bash setup.sh
+    sudo cp data/redash.nginx /etc/nginx/sites-available
+    sudo ln -s /etc/nginx/sites-available/redash.nginx /etc/nginx/sites-enabled/redash.nginx
+    ```
 
-For small scale deployments -- yes. But for larger deployments we recommend at least splitting the database (and probably Redis) into its own server (preferably a managed service like RDS) and setting up at least 2 servers for Redash for redundancy. You will also need to tweak the number of workers based on your usage patterns.
+1. Update the domain name in `/etc/nginx/sites-enabled/redash.nginx`.
 
-### How do I upgrade to newer versions of Redash?
-
-See [Upgrade Guide](https://redash.io/help/open-source/admin-guide/how-to-upgrade).
-
-### How do I use `setup.sh` on a different operating system?
-
-You will need to update the `install_docker` function and maybe other functions as well.
+1. Add SSL using certbot
